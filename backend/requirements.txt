@@ -1,0 +1,12 @@
+fastapi>=0.115
+uvicorn[standard]>=0.30
+langgraph>=0.2.40
+groq>=0.13
+instructor[groq]>=1.6
+pydantic>=2.9
+pydantic-settings>=2.5
+pandas>=2.2
+python-dotenv>=1.0
+langsmith>=0.1.140
+httpx>=0.27
+pytest>=8.0

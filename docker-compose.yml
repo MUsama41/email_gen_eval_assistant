@@ -1,0 +1,12 @@
+services:
+  api:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - ./backend/data:/app/data
+      - ./backend/results:/app/results
+      - ./backend/.cache:/app/.cache
+    restart: unless-stopped

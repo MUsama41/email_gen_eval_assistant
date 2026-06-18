@@ -1,0 +1,112 @@
+[
+  {
+    "id": "S01",
+    "intent": "Follow up after a client meeting",
+    "key_facts": [
+      "Discussed the Q3 product roadmap",
+      "Client requested a revised timeline by next Wednesday",
+      "Next sync scheduled for Friday at 10 AM"
+    ],
+    "tone": "formal",
+    "reference_email": "Subject: Follow-Up: Q3 Roadmap Discussion and Next Steps\n\nDear Ms. Carter,\n\nThank you for the productive conversation regarding our Q3 product roadmap. As discussed, we will prepare a revised timeline and share it with you by next Wednesday.\n\nTo maintain momentum, I have confirmed our next sync for Friday at 10 AM. Please let me know if that time remains convenient.\n\nBest regards,\nDaniel"
+  },
+  {
+    "id": "S02",
+    "intent": "Request proposal details from a vendor",
+    "key_facts": [
+      "Need detailed pricing for the enterprise plan",
+      "Require delivery before August 1",
+      "Project kicks off in Q4"
+    ],
+    "tone": "formal",
+    "reference_email": "Subject: Request for Enterprise Proposal Details\n\nDear Vendor Team,\n\nWe are evaluating partners for a project launching in Q4 and would like to move forward with your enterprise plan. Could you please send detailed pricing for that tier?\n\nGiven our timeline, we would need the proposal before August 1 to stay on schedule. Thank you for your prompt attention.\n\nKind regards,\nProcurement"
+  },
+  {
+    "id": "S03",
+    "intent": "Apologize for a shipping delay",
+    "key_facts": [
+      "Order #4821 is delayed by five business days",
+      "A 15 percent discount is offered on the next order",
+      "New delivery date is June 30"
+    ],
+    "tone": "empathetic",
+    "reference_email": "Subject: Update and Apology Regarding Order #4821\n\nDear Valued Customer,\n\nI am truly sorry for the delay with order #4821. Due to an unexpected logistics issue, your delivery will arrive five business days later than promised, with a new date of June 30.\n\nWe know this is frustrating, and to make it right we would like to offer you a 15 percent discount on your next order. Thank you for your patience and understanding.\n\nWarm regards,\nCustomer Care"
+  },
+  {
+    "id": "S04",
+    "intent": "Invite a colleague to lunch",
+    "key_facts": [
+      "Want to catch up about the new project",
+      "Thinking Thursday around noon",
+      "The new cafe near the office"
+    ],
+    "tone": "casual",
+    "reference_email": "Subject: Lunch Thursday?\n\nHey Sam,\n\nIt's been a while! Want to grab lunch Thursday around noon at that new cafe near the office? I'd love to catch up and hear how the new project is going.\n\nLet me know if that works for you.\n\nCheers,\nAlex"
+  },
+  {
+    "id": "S05",
+    "intent": "Notify the team of an urgent production outage",
+    "key_facts": [
+      "Checkout service is down as of 2:15 PM",
+      "All engineers should join the incident bridge immediately",
+      "Status updates will post every 30 minutes"
+    ],
+    "tone": "urgent",
+    "reference_email": "Subject: URGENT: Checkout Service Outage - All Engineers Needed\n\nTeam,\n\nThe checkout service went down at 2:15 PM and is currently impacting customers. All engineers must join the incident bridge immediately.\n\nWe will post status updates every 30 minutes until the service is restored. Please drop non-critical work and prioritize this now.\n\nThanks,\nIncident Lead"
+  },
+  {
+    "id": "S06",
+    "intent": "Thank a mentor for their guidance",
+    "key_facts": [
+      "Their advice helped me earn a promotion",
+      "Especially grateful for the interview coaching",
+      "Would like to stay in touch"
+    ],
+    "tone": "warm",
+    "reference_email": "Subject: Thank You for Your Guidance\n\nDear Professor Lin,\n\nI wanted to share some good news and say thank you. With your guidance, I recently earned a promotion, and I am especially grateful for the interview coaching you gave me along the way.\n\nYour mentorship has meant a great deal to me, and I would love to stay in touch.\n\nWith gratitude,\nMaria"
+  },
+  {
+    "id": "S07",
+    "intent": "Decline a partnership proposal politely",
+    "key_facts": [
+      "The proposal does not fit our current roadmap",
+      "We may revisit in early next year",
+      "We appreciate the time they invested"
+    ],
+    "tone": "diplomatic",
+    "reference_email": "Subject: Regarding Your Partnership Proposal\n\nDear Mr. Okafor,\n\nThank you for the detailed partnership proposal and the time your team invested in it. After careful review, we have concluded that it does not align with our current roadmap.\n\nThat said, our priorities may shift, and we would welcome the opportunity to revisit this conversation early next year. We appreciate your understanding.\n\nSincerely,\nBusiness Development"
+  },
+  {
+    "id": "S08",
+    "intent": "Remind a customer about an upcoming subscription renewal",
+    "key_facts": [
+      "Subscription renews on July 15",
+      "The annual rate is 199 dollars",
+      "They can update payment details in account settings"
+    ],
+    "tone": "friendly",
+    "reference_email": "Subject: Your Subscription Renews Soon\n\nHi Jordan,\n\nJust a friendly heads-up that your subscription will renew on July 15 at the annual rate of $199. No action is needed if everything looks good.\n\nIf you'd like to update your payment details, you can do so anytime in your account settings. Thanks for being with us!\n\nBest,\nThe Team"
+  },
+  {
+    "id": "S09",
+    "intent": "Request a deadline extension from a manager",
+    "key_facts": [
+      "Need three extra days on the analytics report",
+      "A data source was delayed on our end",
+      "Can deliver by Monday instead of Thursday"
+    ],
+    "tone": "professional",
+    "reference_email": "Subject: Request for a Short Extension on the Analytics Report\n\nHi Priya,\n\nI wanted to flag that one of our data sources arrived later than expected, which has affected the analytics report timeline. Could I have three additional days to ensure the analysis is accurate?\n\nThat would move delivery from Thursday to Monday. Please let me know if that works, and I'm happy to share a draft sooner if helpful.\n\nThank you,\nNate"
+  },
+  {
+    "id": "S10",
+    "intent": "Announce a new feature to existing users",
+    "key_facts": [
+      "Dark mode is now available on web and mobile",
+      "It can be enabled in display settings",
+      "Feedback can be sent through the in-app form"
+    ],
+    "tone": "enthusiastic",
+    "reference_email": "Subject: Dark Mode Is Here!\n\nHi there,\n\nWe're excited to announce that dark mode is now live on both web and mobile! Whether you're working late or just prefer a darker look, we've got you covered.\n\nTo turn it on, head to your display settings and pick the dark theme. We'd love to hear what you think, so share your thoughts anytime through the in-app feedback form.\n\nHappy browsing,\nThe Product Team"
+  }
+]
