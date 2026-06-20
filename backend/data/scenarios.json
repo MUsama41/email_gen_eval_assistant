@@ -12,14 +12,17 @@
   },
   {
     "id": "S02",
-    "intent": "Request proposal details from a vendor",
+    "intent": "Send a vendor the full requirements for an enterprise proposal",
     "key_facts": [
       "Need detailed pricing for the enterprise plan",
-      "Require delivery before August 1",
-      "Project kicks off in Q4"
+      "Require 24/7 support with a 1-hour response SLA",
+      "Must support single sign-on via SAML",
+      "Need data residency in the EU",
+      "Proposal due before August 1",
+      "Project kicks off in Q4 with about 500 seats"
     ],
     "tone": "formal",
-    "reference_email": "Subject: Request for Enterprise Proposal Details\n\nDear Vendor Team,\n\nWe are evaluating partners for a project launching in Q4 and would like to move forward with your enterprise plan. Could you please send detailed pricing for that tier?\n\nGiven our timeline, we would need the proposal before August 1 to stay on schedule. Thank you for your prompt attention.\n\nKind regards,\nProcurement"
+    "reference_email": "Subject: Enterprise Proposal Requirements\n\nDear Vendor Team,\n\nWe are preparing to launch a 500-seat deployment in Q4 and would like a proposal for your enterprise plan. Please include detailed pricing for that tier.\n\nOur requirements are: 24/7 support with a one-hour response SLA, single sign-on via SAML, and data residency within the EU. To keep our timeline, we would need the completed proposal before August 1.\n\nThank you for your attention to these details.\n\nKind regards,\nProcurement"
   },
   {
     "id": "S03",
@@ -34,14 +37,15 @@
   },
   {
     "id": "S04",
-    "intent": "Invite a colleague to lunch",
+    "intent": "Tell customers about a price increase while keeping them reassured and loyal",
     "key_facts": [
-      "Want to catch up about the new project",
-      "Thinking Thursday around noon",
-      "The new cafe near the office"
+      "Monthly price rises from 20 to 26 dollars on September 1",
+      "Existing customers keep the old price for three more months",
+      "Two new features are included: priority support and unlimited exports",
+      "Customers can cancel anytime with no fee"
     ],
-    "tone": "casual",
-    "reference_email": "Subject: Lunch Thursday?\n\nHey Sam,\n\nIt's been a while! Want to grab lunch Thursday around noon at that new cafe near the office? I'd love to catch up and hear how the new project is going.\n\nLet me know if that works for you.\n\nCheers,\nAlex"
+    "tone": "reassuring",
+    "reference_email": "Subject: An Update to Your Plan (and What's New)\n\nHi there,\n\nWe want to keep you informed about a change to your plan. Starting September 1, the monthly price will move from $20 to $26. As a thank-you for being with us, you'll keep your current rate for three more months before the new price applies.\n\nThe update also brings real value: your plan now includes priority support and unlimited exports. And as always, you can cancel anytime with no fee.\n\nThank you for your continued trust.\n\nWarm regards,\nThe Team"
   },
   {
     "id": "S05",
@@ -78,14 +82,16 @@
   },
   {
     "id": "S08",
-    "intent": "Remind a customer about an upcoming subscription renewal",
+    "intent": "Invite clients to a product webinar with the exact logistics",
     "key_facts": [
-      "Subscription renews on July 15",
-      "The annual rate is 199 dollars",
-      "They can update payment details in account settings"
+      "Webinar is on October 14 from 3:00 to 4:30 PM Eastern Time",
+      "Topic is the 2026 analytics roadmap",
+      "Seats are limited to the first 200 registrants",
+      "A recording will be sent to everyone who registers",
+      "Registration link will follow in a separate email"
     ],
-    "tone": "friendly",
-    "reference_email": "Subject: Your Subscription Renews Soon\n\nHi Jordan,\n\nJust a friendly heads-up that your subscription will renew on July 15 at the annual rate of $199. No action is needed if everything looks good.\n\nIf you'd like to update your payment details, you can do so anytime in your account settings. Thanks for being with us!\n\nBest,\nThe Team"
+    "tone": "polished",
+    "reference_email": "Subject: Invitation: 2026 Analytics Roadmap Webinar\n\nDear Client,\n\nWe would like to invite you to our upcoming webinar on the 2026 analytics roadmap, taking place on October 14 from 3:00 to 4:30 PM Eastern Time.\n\nSeats are limited to the first 200 registrants, so we encourage you to reserve early. If you are unable to attend live, a recording will be sent to everyone who registers. The registration link will follow in a separate email.\n\nWe hope to see you there.\n\nBest regards,\nThe Events Team"
   },
   {
     "id": "S09",

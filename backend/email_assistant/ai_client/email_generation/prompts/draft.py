@@ -14,7 +14,8 @@ Out of scope: inventing facts not present in `key_facts`, adding placeholders, o
 4. Keep it concise and free of filler.
 
 ## Output
-Return only:
+Return only the two fields below and nothing else. Do not add other fields.
+Do not use bracketed placeholders such as [Name]; write complete, ready-to-send text.
 {{
   "subject": <string>,
   "body": <string>
@@ -34,7 +35,8 @@ Return only:
 
 DRAFT_BASELINE_SYSTEM_PROMPT = """
 Write a professional email from the given intent, key facts, and tone.
-Return only:
+Return only the two fields below and nothing else. Do not add other fields.
+Do not use bracketed placeholders such as [Name]; write complete, ready-to-send text.
 {{
   "subject": <string>,
   "body": <string>

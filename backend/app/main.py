@@ -5,7 +5,7 @@ from app.routers import evaluation, generation
 app = FastAPI(
     title="Email Generation Assistant",
     version="1.0.0",
-    description="Generates professional emails via LangGraph multi-agent graphs on Groq.",
+    description="Generates professional emails via LangGraph graphs.",
 )
 
 app.include_router(generation.router)

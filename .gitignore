@@ -7,3 +7,5 @@ backend/.cache/
 backend/results/
 .pytest_cache/
 *.egg-info/
+myenv/
+report/

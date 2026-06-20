@@ -1,7 +1,7 @@
 [project]
 name = "email-gen-assistant"
 version = "1.0.0"
-description = "Email Generation Assistant with LangGraph multi-agent graphs on Groq, plus a custom evaluation suite."
+description = "Email Generation Assistant with LangGraph graphs and a custom evaluation suite."
 requires-python = ">=3.10"
 
 [tool.flake8]

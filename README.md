@@ -1,145 +1,131 @@
 # Email Generation Assistant
 
-A working prototype that generates professional emails from structured input (Intent, Key Facts, Tone) using **LangGraph multi-agent graphs** running on **Groq** models, with a custom evaluation suite and a 2×2 model/strategy comparison.
+Generates professional emails from structured input (intent, key facts, tone)
+using LangGraph graphs, with a custom evaluation suite and a 2x2
+model/strategy comparison.
 
-Structured output is enforced with **Instructor** (Groq has no native structured-output API). Tracing is wired through **LangSmith**. The HTTP layer is **FastAPI**.
-
----
+Structured output is enforced with Instructor. The HTTP layer is FastAPI.
+LangSmith tracing is optional.
 
 ## Architecture
 
-The system is built as a **client** (`email_assistant`) containing two **LangGraph** graphs, each with multiple nodes leading to one goal.
+The `email_assistant` client holds two LangGraph graphs.
 
-### Graph 1 — Email Generation (`email_generation`)
+Email generation:
 
 ```
 validate_input -> plan_outline -> draft -> self_critique -> revise -> package
 ```
 
-The advanced prompting technique is structural: a **role-play** system prompt, **few-shot** examples in the draft node, a **chain-of-thought** `plan_outline` node, and a `self_critique -> revise` loop. The `baseline` strategy uses a zero-shot draft prompt and skips the critique loop, enabling a fair prompt-strategy comparison.
+The advanced strategy uses a role-play system prompt, a few-shot example in the
+draft node, a chain-of-thought plan_outline node, and a self_critique/revise
+loop. The baseline strategy uses a zero-shot draft prompt and skips the critique
+loop, so the same graph runs both and the comparison is fair.
 
-### Graph 2 — Evaluation (`evaluation`)
+Evaluation:
 
 ```
 judge_fact_recall -> judge_tone -> score_fluency -> aggregate
 ```
 
-Each node implements one custom metric; `aggregate` produces the weighted overall score.
+Each node implements one custom metric; aggregate produces the weighted overall
+score.
 
----
-
-## Custom Metrics
+## Custom metrics
 
 | Metric | Focus | Logic |
 |--------|-------|-------|
-| **Fact Recall & Faithfulness** | Fact Recall / Specificity | LLM-as-Judge counts accurately covered key facts (paraphrase allowed) and penalizes fabrication. `covered / total`, × 0.7 if fabrication detected. |
-| **Tone Accuracy** | Tone Accuracy | LLM-as-Judge detects the conveyed tone and rates alignment with the requested tone (0–1). |
-| **Conciseness & Fluency** | Conciseness / Grammar / Fluency | Hybrid: deterministic Python (word-count band + filler penalty) combined with an LLM-as-Judge grammar score. |
+| Fact Recall & Faithfulness | Fact recall / specificity | LLM judge counts covered key facts (paraphrase allowed) and flags fabrication. covered/total, x0.7 if fabrication detected. |
+| Tone Accuracy | Tone accuracy | LLM judge detects the conveyed tone and rates alignment with the requested tone (0-1). |
+| Conciseness & Fluency | Conciseness / grammar / fluency | Deterministic Python (word-count band + filler penalty) combined with an LLM judge grammar score. |
 
-The metrics deliberately mix deterministic Python with LLM-as-Judge to satisfy the "combination of automated techniques" requirement. The judge runs at temperature 0 for reproducibility.
+The metrics mix deterministic Python with LLM-as-judge. The judge runs at
+temperature 0.
 
----
-
-## Project Layout
+## Layout
 
 ```
-email_gen_assistant/
-├── app/                        FastAPI app, routers, services
-│   ├── main.py
-│   ├── dependencies.py
-│   ├── routers/                /generate, /evaluate
-│   └── services/               runner, comparison, report_writer, metric_definitions
-├── core/                       configuration, llm_provider, base_graph
-├── email_assistant/            the client
-│   ├── utils.py                deterministic metric helpers
-│   └── ai_client/
-│       ├── email_generation/   graph.py, state.py, schemas.py, prompts/
-│       └── evaluation/         graph.py, state.py, schemas.py, prompts/
-├── schemas/                    HTTP request/response models
-├── data/scenarios.json         10 scenarios + reference emails
-├── results/                    generated CSV/JSON
-├── tests/                      pytest (no API calls)
-└── run_comparison.py           runs the full 2×2 evaluation
+backend/
+  app/            FastAPI app, routers, services, schemas
+  core/           configuration, llm_provider, base_graph
+  email_assistant/
+    utils.py      deterministic metric helpers
+    ai_client/
+      email_generation/   graph.py, state.py, schemas.py, prompts/
+      evaluation/         graph.py, state.py, schemas.py, prompts/
+  data/scenarios.json     10 scenarios + reference emails
+  results/                generated CSV/JSON
+  tests/                  pytest, no API calls
+  run_comparison.py       runs the full 2x2 evaluation
 ```
-
----
 
 ## Setup
 
-Requires Python 3.10+.
+Python 3.10+.
 
-```bash
-python -m venv .venv
-# Windows
-.venv\Scripts\activate
-# macOS / Linux
-source .venv/bin/activate
+```
+python -m venv myenv
+myenv\Scripts\activate          # Windows
+source myenv/bin/activate       # macOS/Linux
 
-pip install -r requirements.txt
-
-cp .env.example .env   # then edit .env with your keys
+pip install -r backend/requirements.txt
+cp .env.example .env            # then add your API keys
 ```
 
-Set in `.env`:
+Models are named `provider:model_id`. Supported providers: `groq`, `gemini`,
+`cerebras`, `openrouter`. Set the matching `<PROVIDER>_API_KEY` in `.env`. All
+models, temperatures, weights, score scale, and word bands are read from `.env`.
 
-- `GROQ_API_KEY` — required.
-- `LANGSMITH_API_KEY` — optional; set `LANGSMITH_TRACING=true` to enable tracing.
-
-Default models (all current Groq production models, free-tier accessible):
+The defaults in `.env.example` run on Cerebras:
 
 | Role | Model |
 |------|-------|
-| Model A (generation) | `llama-3.3-70b-versatile` |
-| Model B (generation) | `llama-3.1-8b-instant` |
-| Judge | `openai/gpt-oss-120b` |
-
-All models, temperatures, score scale, word bands, and weights are configurable via `.env` — no values are hardcoded.
-
----
+| Model A | `cerebras:gpt-oss-120b` |
+| Model B | `cerebras:zai-glm-4.7` |
+| Judge | `cerebras:gpt-oss-120b` |
 
 ## Running
 
-### API server
+Run from the `backend/` directory.
 
-```bash
+API server:
+
+```
+cd backend
 uvicorn app.main:app --reload
 ```
 
-Then open `http://127.0.0.1:8000/docs`.
+Open `http://127.0.0.1:8000/docs`.
 
-Generate an email:
-
-```bash
+```
 curl -X POST http://127.0.0.1:8000/generate \
   -H "Content-Type: application/json" \
-  -d '{
-        "intent": "Follow up after a client meeting",
-        "key_facts": ["Discussed Q3 roadmap", "Next sync Friday 10 AM"],
-        "tone": "formal",
-        "strategy": "advanced"
-      }'
+  -d '{"intent": "Follow up after a client meeting",
+       "key_facts": ["Discussed Q3 roadmap", "Next sync Friday 10 AM"],
+       "tone": "formal", "strategy": "advanced"}'
 ```
 
-### Full evaluation and comparison
+Full evaluation and comparison (10 scenarios x 2 models x 2 strategies):
 
-Runs all 10 scenarios across 2 models × 2 strategies, writes per-combo CSV/JSON plus a comparison file, and prints the winner:
-
-```bash
+```
+cd backend
 python run_comparison.py
 ```
 
-Outputs land in `results/`:
+Outputs in `backend/results/`:
 
-- `eval_<model>_<strategy>.csv` — raw per-scenario scores.
-- `eval_<model>_<strategy>.json` — metric definitions + raw scores + averages.
-- `comparison.csv` — side-by-side averages for all four combos.
+- `eval_<model>_<strategy>.csv` - raw per-scenario scores
+- `eval_<model>_<strategy>.json` - metric definitions, raw scores, averages
+- `comparison.csv` - averages for all four combos
 
-Generations are cached in `.cache/` keyed by model + strategy + scenario, so re-runs do not re-call the API.
+Each scored scenario is cached in `.cache/` (keyed by model, strategy, and
+scenario), so re-runs reuse results and do not re-call the API. If a provider's
+daily token limit is hit, the run writes what completed and stops; re-run after
+the limit resets to continue.
 
-### Tests
+Tests:
 
-```bash
+```
+cd backend
 pytest
 ```
-
-Tests use a fake LLM and run with no API calls.

@@ -1,11 +1,16 @@
 import json
 import os
+import re
 from typing import List, Optional
 
 import pandas as pd
 
 from app.services.metric_definitions import METRIC_DEFINITIONS
 from core.configuration import Settings, get_settings
+
+
+def safe_filename(value: str) -> str:
+    return re.sub(r"[^A-Za-z0-9._-]+", "_", value)
 
 
 class ReportWriter:
@@ -17,8 +22,7 @@ class ReportWriter:
         return os.path.join(self.settings.results_dir, filename)
 
     def write_combo(self, model_name: str, strategy: str, rows: List[dict], averages: dict) -> dict:
-        safe_model = model_name.replace("/", "_")
-        stem = f"eval_{safe_model}_{strategy}"
+        stem = f"eval_{safe_filename(model_name)}_{strategy}"
 
         df = pd.DataFrame(rows)
         csv_path = self._path(f"{stem}.csv")

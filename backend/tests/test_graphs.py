@@ -41,7 +41,7 @@ class FakeLLM:
 
 
 def _settings():
-    return Settings(groq_api_key="test", langsmith_tracing=False)
+    return Settings(cerebras_api_key="test", langsmith_tracing=False)
 
 
 def test_email_generation_graph_reaches_package():
@@ -50,7 +50,7 @@ def test_email_generation_graph_reaches_package():
         intent="Follow up",
         key_facts=["Discussed roadmap", "Sync Friday"],
         tone="formal",
-        model_name="llama-3.3-70b-versatile",
+        model_name="cerebras:gpt-oss-120b",
         strategy="advanced",
     )
     assert result["response"]["type"] == "EMAIL"
@@ -63,7 +63,7 @@ def test_email_generation_baseline_skips_critique():
         intent="Follow up",
         key_facts=["Discussed roadmap"],
         tone="casual",
-        model_name="llama-3.1-8b-instant",
+        model_name="cerebras:zai-glm-4.7",
         strategy="baseline",
     )
     assert result["response"]["type"] == "EMAIL"

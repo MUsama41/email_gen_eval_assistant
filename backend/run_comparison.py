@@ -1,9 +1,22 @@
 import json
+import logging
 
 from app.services.comparison import ComparisonService
 
 
+def _configure_logging() -> None:
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)-7s %(name)s | %(message)s",
+        datefmt="%H:%M:%S",
+    )
+
+
 def main() -> None:
+    _configure_logging()
+    log = logging.getLogger("run_comparison")
+
+    log.info("Starting 2x2 comparison (2 models x 2 strategies x 10 scenarios)")
     service = ComparisonService()
     result = service.run()
 
@@ -22,6 +35,13 @@ def main() -> None:
             f"with overall {winner['overall']}"
         )
 
+    if result.get("stopped_early"):
+        log.warning(
+            "Run stopped early on a daily token cap. Completed combos are cached and "
+            "written. Re-run this command after the quota resets to finish the rest."
+        )
+
+    log.info("Results written to the results/ directory.")
     print("\nResults written to the results/ directory.")
     print(json.dumps(result["summary"], indent=2))
 
