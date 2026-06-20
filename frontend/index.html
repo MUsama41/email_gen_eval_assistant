@@ -150,7 +150,7 @@
     <div id="pane-comparison" class="hidden">
       <div class="bg-white rounded-xl shadow-sm p-6">
         <p class="text-sm text-gray-600 mb-1">2×2 evaluation matrix: 2 models × 2 strategies × 10 scenarios × 3 metrics.</p>
-        <p class="text-sm text-gray-500 mb-4">Results are loaded from cache instantly. Use <strong>Re-run</strong> to clear the cache and re-evaluate from scratch via the API (takes 5–10 min).</p>
+        <p class="text-sm text-gray-500 mb-4"><strong>Show Results</strong> reads the saved results file instantly — no API calls. Use <strong>Re-run</strong> to clear the cache and re-evaluate everything from scratch (30–60 min).</p>
         <button onclick="runComparison(false)" id="cmp-btn"
           class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium py-2 rounded-lg transition">
           Show Results
@@ -163,7 +163,7 @@
 
       <div id="cmp-spinner" class="hidden mt-4 bg-white rounded-xl shadow-sm p-6 text-center">
         <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mb-3"></div>
-        <p class="text-sm text-gray-500">Running evaluation… this may take several minutes.<br>Rate-limit retries are normal and handled automatically.</p>
+        <p id="cmp-spinner-msg" class="text-sm text-gray-500"></p>
       </div>
 
       <div id="cmp-result" class="hidden mt-4 bg-white rounded-xl shadow-sm p-6">
@@ -282,14 +282,24 @@
     // ── COMPARISON ──
     async function runComparison(force = false) {
       hideEl("cmp-result"); hideEl("cmp-error");
+      document.getElementById("cmp-spinner-msg").innerHTML = force
+        ? "Cache cleared. Running full evaluation from scratch — 40 scenarios × 3 metrics.<br><strong>This can take 30–60 minutes</strong> depending on LLM rate limits and provider response times.<br><span class='text-amber-600'>Do not close this tab.</span> Rate-limit retries are handled automatically."
+        : "Loading results…";
       showEl("cmp-spinner");
       document.getElementById("cmp-btn").disabled = true;
       document.getElementById("cmp-rerun-btn").disabled = true;
 
       try {
-        const url = API_URL + "/comparison" + (force ? "?force=true" : "");
-        const res = await fetch(url, { method: "POST" });
+        const url = force
+          ? API_URL + "/comparison?force=true"
+          : API_URL + "/comparison/results";
+        const res = await fetch(url, { method: force ? "POST" : "GET" });
         const data = await res.json();
+        if (res.status === 404) {
+          document.getElementById("cmp-error").textContent = "No results found yet. Click \"Re-run\" to run the full evaluation.";
+          showEl("cmp-error");
+          return;
+        }
         if (!res.ok) throw new Error(data.detail || JSON.stringify(data));
 
         const winner = data.winner;
