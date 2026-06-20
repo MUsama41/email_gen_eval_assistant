@@ -86,16 +86,50 @@ The defaults in `.env.example` run on Cerebras:
 
 ## Running
 
-Run from the `backend/` directory.
+Three ways to run — pick whichever fits.
 
-API server:
+### Option 1 — Docker (full stack)
+
+Starts the API on port 8000 and the frontend UI on port 3000.
+
+```
+docker-compose up --build
+```
+
+- Frontend: `http://localhost:3000`
+- API docs: `http://localhost:8000/docs`
+
+### Option 2 — Docker (backend only)
+
+Useful for Swagger testing without the frontend container.
+
+```
+docker-compose up api
+```
+
+API docs at `http://localhost:8000/docs`.
+
+### Option 3 — Local venv
 
 ```
 cd backend
 uvicorn app.main:app --reload
 ```
 
-Open `http://127.0.0.1:8000/docs`.
+API docs at `http://127.0.0.1:8000/docs`.
+
+---
+
+### API endpoints
+
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/generate` | Generate an email |
+| POST | `/evaluate` | Score an email against 3 metrics |
+| POST | `/comparison` | Run the full 2×2 evaluation matrix |
+| GET  | `/health` | Health check |
+
+Example generate call:
 
 ```
 curl -X POST http://127.0.0.1:8000/generate \
@@ -105,7 +139,13 @@ curl -X POST http://127.0.0.1:8000/generate \
        "tone": "formal", "strategy": "advanced"}'
 ```
 
-Full evaluation and comparison (10 scenarios x 2 models x 2 strategies):
+### Running the comparison
+
+Via the UI — open the **Run Comparison** tab and click the button.
+
+Via the API — `POST /comparison` (returns JSON when complete).
+
+Via the CLI:
 
 ```
 cd backend
@@ -114,16 +154,17 @@ python run_comparison.py
 
 Outputs in `backend/results/`:
 
-- `eval_<model>_<strategy>.csv` - raw per-scenario scores
-- `eval_<model>_<strategy>.json` - metric definitions, raw scores, averages
-- `comparison.csv` - averages for all four combos
+- `eval_<model>_<strategy>.csv` — raw per-scenario scores
+- `eval_<model>_<strategy>.json` — metric definitions, raw scores, averages
+- `comparison.csv` — averages for all four combos
 
 Each scored scenario is cached in `.cache/` (keyed by model, strategy, and
-scenario), so re-runs reuse results and do not re-call the API. If a provider's
+scenario). Re-runs reuse cached results and skip API calls. If a provider's
 daily token limit is hit, the run writes what completed and stops; re-run after
-the limit resets to continue.
+the limit resets to continue. Cerebras per-minute 429s are retried automatically
+— expect ~5-10 minutes on a cold run.
 
-Tests:
+### Tests (no API key needed)
 
 ```
 cd backend

@@ -10,3 +10,11 @@ services:
       - ./backend/results:/app/results
       - ./backend/.cache:/app/.cache
     restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    restart: unless-stopped

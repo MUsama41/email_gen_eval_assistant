@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Email Generation Assistant</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .tab-active { border-bottom: 2px solid #4f46e5; color: #4f46e5; font-weight: 600; }
+    .tab-inactive { border-bottom: 2px solid transparent; color: #6b7280; }
+    pre { white-space: pre-wrap; word-break: break-word; }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+  <header class="bg-white shadow-sm">
+    <div class="max-w-4xl mx-auto px-6 py-4">
+      <h1 class="text-xl font-semibold text-gray-800">Email Generation Assistant</h1>
+      <p class="text-sm text-gray-500 mt-0.5">LangGraph · Instructor · Cerebras</p>
+    </div>
+  </header>
+
+  <div class="max-w-4xl mx-auto px-6 mt-6">
+
+    <!-- Tabs -->
+    <div class="flex gap-6 border-b border-gray-200 mb-6">
+      <button onclick="switchTab('generate')" id="tab-generate"
+        class="pb-2 text-sm tab-active">Generate Email</button>
+      <button onclick="switchTab('evaluate')" id="tab-evaluate"
+        class="pb-2 text-sm tab-inactive">Evaluate Email</button>
+      <button onclick="switchTab('comparison')" id="tab-comparison"
+        class="pb-2 text-sm tab-inactive">Run Comparison</button>
+    </div>
+
+    <!-- ── GENERATE ── -->
+    <div id="pane-generate">
+      <div class="bg-white rounded-xl shadow-sm p-6 space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Intent</label>
+          <input id="gen-intent" type="text" placeholder="e.g. Follow up after a client meeting"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Key Facts <span class="text-gray-400 font-normal">(one per line)</span></label>
+          <textarea id="gen-facts" rows="4" placeholder="Discussed Q3 roadmap&#10;Next sync on Friday at 10 AM&#10;Client requested revised timeline by Wednesday"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"></textarea>
+        </div>
+        <div class="flex gap-4">
+          <div class="flex-1">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Tone</label>
+            <select id="gen-tone" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+              <option>formal</option>
+              <option>casual</option>
+              <option>empathetic</option>
+              <option>urgent</option>
+              <option>reassuring</option>
+              <option>diplomatic</option>
+              <option>warm</option>
+              <option>professional</option>
+              <option>enthusiastic</option>
+              <option>polished</option>
+            </select>
+          </div>
+          <div class="flex-1">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Strategy</label>
+            <select id="gen-strategy" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+              <option value="advanced">Advanced (CoT + few-shot + critique)</option>
+              <option value="baseline">Baseline (zero-shot)</option>
+            </select>
+          </div>
+        </div>
+        <button onclick="runGenerate()"
+          class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium py-2 rounded-lg transition">
+          Generate
+        </button>
+      </div>
+
+      <div id="gen-result" class="hidden mt-4 bg-white rounded-xl shadow-sm p-6">
+        <p class="text-xs text-gray-400 uppercase tracking-wide mb-2">Subject</p>
+        <p id="gen-subject" class="font-semibold text-gray-800 mb-4"></p>
+        <p class="text-xs text-gray-400 uppercase tracking-wide mb-2">Body</p>
+        <pre id="gen-body" class="text-sm text-gray-700 leading-relaxed"></pre>
+      </div>
+      <div id="gen-error" class="hidden mt-4 bg-red-50 border border-red-200 text-red-700 rounded-xl p-4 text-sm"></div>
+      <div id="gen-spinner" class="hidden mt-4 text-center text-sm text-gray-500 py-4">Generating...</div>
+    </div>
+
+    <!-- ── EVALUATE ── -->
+    <div id="pane-evaluate" class="hidden">
+      <div class="bg-white rounded-xl shadow-sm p-6 space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Intent</label>
+            <input id="ev-intent" type="text"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Tone</label>
+            <input id="ev-tone" type="text" placeholder="e.g. formal"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Key Facts <span class="text-gray-400 font-normal">(one per line)</span></label>
+          <textarea id="ev-facts" rows="3"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"></textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Email Subject</label>
+          <input id="ev-subject" type="text"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Email Body</label>
+          <textarea id="ev-body" rows="6"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"></textarea>
+        </div>
+        <button onclick="runEvaluate()"
+          class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium py-2 rounded-lg transition">
+          Evaluate
+        </button>
+      </div>
+
+      <div id="ev-result" class="hidden mt-4 bg-white rounded-xl shadow-sm p-6">
+        <p class="text-xs text-gray-400 uppercase tracking-wide mb-4">Metric Scores</p>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="score-card bg-gray-50 rounded-lg p-4">
+            <p class="text-xs text-gray-500 mb-1">Fact Recall</p>
+            <p id="ev-fact" class="text-2xl font-bold text-indigo-600"></p>
+          </div>
+          <div class="score-card bg-gray-50 rounded-lg p-4">
+            <p class="text-xs text-gray-500 mb-1">Tone Accuracy</p>
+            <p id="ev-tone-score" class="text-2xl font-bold text-indigo-600"></p>
+          </div>
+          <div class="score-card bg-gray-50 rounded-lg p-4">
+            <p class="text-xs text-gray-500 mb-1">Conciseness & Fluency</p>
+            <p id="ev-fluency" class="text-2xl font-bold text-indigo-600"></p>
+          </div>
+          <div class="score-card bg-gray-50 rounded-lg p-4 border-2 border-indigo-200">
+            <p class="text-xs text-gray-500 mb-1">Overall</p>
+            <p id="ev-overall" class="text-2xl font-bold text-indigo-700"></p>
+          </div>
+        </div>
+      </div>
+      <div id="ev-error" class="hidden mt-4 bg-red-50 border border-red-200 text-red-700 rounded-xl p-4 text-sm"></div>
+      <div id="ev-spinner" class="hidden mt-4 text-center text-sm text-gray-500 py-4">Evaluating...</div>
+    </div>
+
+    <!-- ── COMPARISON ── -->
+    <div id="pane-comparison" class="hidden">
+      <div class="bg-white rounded-xl shadow-sm p-6">
+        <p class="text-sm text-gray-600 mb-1">2×2 evaluation matrix: 2 models × 2 strategies × 10 scenarios × 3 metrics.</p>
+        <p class="text-sm text-gray-500 mb-4">Results are loaded from cache instantly. Use <strong>Re-run</strong> to clear the cache and re-evaluate from scratch via the API (takes 5–10 min).</p>
+        <button onclick="runComparison(false)" id="cmp-btn"
+          class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium py-2 rounded-lg transition">
+          Show Results
+        </button>
+        <button onclick="runComparison(true)" id="cmp-rerun-btn"
+          class="w-full mt-2 bg-white hover:bg-gray-50 text-gray-600 border border-gray-300 text-sm font-medium py-2 rounded-lg transition">
+          Re-run (clears cache &amp; re-evaluates)
+        </button>
+      </div>
+
+      <div id="cmp-spinner" class="hidden mt-4 bg-white rounded-xl shadow-sm p-6 text-center">
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mb-3"></div>
+        <p class="text-sm text-gray-500">Running evaluation… this may take several minutes.<br>Rate-limit retries are normal and handled automatically.</p>
+      </div>
+
+      <div id="cmp-result" class="hidden mt-4 bg-white rounded-xl shadow-sm p-6">
+        <div id="cmp-winner" class="mb-6 p-4 bg-indigo-50 border border-indigo-200 rounded-lg"></div>
+        <p class="text-xs text-gray-400 uppercase tracking-wide mb-3">All Combos</p>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-gray-200">
+                <th class="text-left py-2 pr-4 font-medium text-gray-600">Model</th>
+                <th class="text-left py-2 pr-4 font-medium text-gray-600">Strategy</th>
+                <th class="text-right py-2 pr-4 font-medium text-gray-600">Fact Recall</th>
+                <th class="text-right py-2 pr-4 font-medium text-gray-600">Tone</th>
+                <th class="text-right py-2 pr-4 font-medium text-gray-600">Fluency</th>
+                <th class="text-right py-2 font-medium text-gray-600">Overall</th>
+              </tr>
+            </thead>
+            <tbody id="cmp-table-body"></tbody>
+          </table>
+        </div>
+        <div id="cmp-stopped" class="hidden mt-4 text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-lg p-3">
+          Run stopped early due to a daily token cap. Re-run after the quota resets to complete remaining scenarios.
+        </div>
+      </div>
+      <div id="cmp-error" class="hidden mt-4 bg-red-50 border border-red-200 text-red-700 rounded-xl p-4 text-sm"></div>
+    </div>
+
+  </div>
+
+  <script>
+    const API_URL = "http://localhost:8000";
+
+    function switchTab(name) {
+      ["generate", "evaluate", "comparison"].forEach(t => {
+        document.getElementById("pane-" + t).classList.toggle("hidden", t !== name);
+        document.getElementById("tab-" + t).className =
+          "pb-2 text-sm " + (t === name ? "tab-active" : "tab-inactive");
+      });
+    }
+
+    function showEl(id) { document.getElementById(id).classList.remove("hidden"); }
+    function hideEl(id) { document.getElementById(id).classList.add("hidden"); }
+
+    function factsToArray(raw) {
+      return raw.split("\n").map(s => s.trim()).filter(Boolean);
+    }
+
+    // ── GENERATE ──
+    async function runGenerate() {
+      const intent = document.getElementById("gen-intent").value.trim();
+      const facts  = factsToArray(document.getElementById("gen-facts").value);
+      const tone   = document.getElementById("gen-tone").value;
+      const strat  = document.getElementById("gen-strategy").value;
+
+      if (!intent) { alert("Intent is required."); return; }
+
+      hideEl("gen-result"); hideEl("gen-error");
+      showEl("gen-spinner");
+
+      try {
+        const res = await fetch(API_URL + "/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ intent, key_facts: facts, tone, strategy: strat }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || JSON.stringify(data));
+
+        document.getElementById("gen-subject").textContent = data.subject || "(no subject)";
+        document.getElementById("gen-body").textContent    = data.body    || data.message || "";
+        showEl("gen-result");
+      } catch (err) {
+        document.getElementById("gen-error").textContent = "Error: " + err.message;
+        showEl("gen-error");
+      } finally {
+        hideEl("gen-spinner");
+      }
+    }
+
+    // ── EVALUATE ──
+    async function runEvaluate() {
+      const intent  = document.getElementById("ev-intent").value.trim();
+      const facts   = factsToArray(document.getElementById("ev-facts").value);
+      const tone    = document.getElementById("ev-tone").value.trim();
+      const subject = document.getElementById("ev-subject").value.trim();
+      const body    = document.getElementById("ev-body").value.trim();
+
+      if (!intent || !subject || !body) { alert("Intent, subject, and body are required."); return; }
+
+      hideEl("ev-result"); hideEl("ev-error");
+      showEl("ev-spinner");
+
+      try {
+        const res = await fetch(API_URL + "/evaluate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ intent, key_facts: facts, tone, subject, body }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || JSON.stringify(data));
+
+        const s = data.scores;
+        document.getElementById("ev-fact").textContent       = s.fact_recall.toFixed(1);
+        document.getElementById("ev-tone-score").textContent = s.tone_accuracy.toFixed(1);
+        document.getElementById("ev-fluency").textContent    = s.conciseness_fluency.toFixed(1);
+        document.getElementById("ev-overall").textContent    = s.overall.toFixed(1);
+        showEl("ev-result");
+      } catch (err) {
+        document.getElementById("ev-error").textContent = "Error: " + err.message;
+        showEl("ev-error");
+      } finally {
+        hideEl("ev-spinner");
+      }
+    }
+
+    // ── COMPARISON ──
+    async function runComparison(force = false) {
+      hideEl("cmp-result"); hideEl("cmp-error");
+      showEl("cmp-spinner");
+      document.getElementById("cmp-btn").disabled = true;
+      document.getElementById("cmp-rerun-btn").disabled = true;
+
+      try {
+        const url = API_URL + "/comparison" + (force ? "?force=true" : "");
+        const res = await fetch(url, { method: "POST" });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || JSON.stringify(data));
+
+        const winner = data.winner;
+        if (winner) {
+          document.getElementById("cmp-winner").innerHTML =
+            `<p class="text-sm font-semibold text-indigo-700 mb-1">Winner</p>
+             <p class="text-sm text-gray-700">
+               <strong>${winner.model_name}</strong> · ${winner.strategy} &nbsp;—&nbsp;
+               Overall <strong>${winner.overall.toFixed(2)}</strong>
+             </p>`;
+        }
+
+        const tbody = document.getElementById("cmp-table-body");
+        tbody.innerHTML = "";
+        data.summary.forEach(row => {
+          const isWinner = winner && row.model_name === winner.model_name && row.strategy === winner.strategy;
+          tbody.innerHTML +=
+            `<tr class="${isWinner ? "bg-indigo-50 font-semibold" : ""} border-b border-gray-100">
+              <td class="py-2 pr-4 text-gray-700">${row.model_name.replace("cerebras:", "")}</td>
+              <td class="py-2 pr-4 text-gray-700">${row.strategy}</td>
+              <td class="py-2 pr-4 text-right">${row.fact_recall.toFixed(1)}</td>
+              <td class="py-2 pr-4 text-right">${row.tone_accuracy.toFixed(1)}</td>
+              <td class="py-2 pr-4 text-right">${row.conciseness_fluency.toFixed(1)}</td>
+              <td class="py-2 text-right">${row.overall.toFixed(2)}</td>
+            </tr>`;
+        });
+
+        if (data.stopped_early) showEl("cmp-stopped");
+        showEl("cmp-result");
+      } catch (err) {
+        document.getElementById("cmp-error").textContent = "Error: " + err.message;
+        showEl("cmp-error");
+      } finally {
+        hideEl("cmp-spinner");
+        document.getElementById("cmp-btn").disabled = false;
+        document.getElementById("cmp-rerun-btn").disabled = false;
+      }
+    }
+  </script>
+
+</body>
+</html>
